@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>&#127758; Placemarkr &#x1F4CD;</title>
+    <script src="js/heic2any.min.js"></script>
+    <script src="js/qr-code-styling.js"></script>
+    <script src="js/exif-reader.js"></script>
+	<script src="js/color-thief.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+			margin-bottom: 30px; /* Genug Platz für den fixierten Footer */
+        }
+        #header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 0;
+            margin-bottom: 10px;
+        }
+        main {
+            padding: 20px;
+        }
+        input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #4CAF50;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #e8f5e9;
+            margin-bottom: 20px;
+        }
+        #gpsData {
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+        select, button, input {
+            padding: 8px;
+            font-size: 0.9em;
+            margin: 5px 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+			background-color: #e9e9ed
+			
+        }
+		#imageContainer img {
+		    max-width: 70vh;
+            max-height: 70vh;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+        button:hover {
+            background-color: #45a049;
+        }
+		
+		#qrCodeContainer {
+		width: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: auto;
+        padding: 0 10px;
+        background-color: #fff; /* Hintergrundfarbe für besseren Kontrast */
+        border: 1px solid #ddd; /* Rahmen um den Container */
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Leichter Schatten */
+    }
+    #qrCodeContainer img {
+        margin: 10px auto;
+        border: 1px solid #ddd;
+        /*border-radius: 10px;*/
+        width: 200px;
+    }
+    #qrCodeContainer button, 
+    #qrCodeContainer a {
+        margin: 10px 0;
+        padding: 10px 15px;
+        font-size: 0.9em;
+        text-decoration: none;
+        color: white;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #qrCodeContainer button:hover,
+    #qrCodeContainer a:hover {
+        background-color: #45a049;
+    }
+	footer {
+		position: fixed;
+		left: 0px;
+		bottom: 0px;
+		right: 0px;
+        background-color: #4CAF50;
+        color: white;
+		z-index: 10; /* Stellen Sie sicher, dass der Footer nicht hinter anderen Elementen liegt */
+        padding: 7px 0;
+}
+	label {
+	font-size: 0.9em;
+	}
+	label2 {
+	font-size: 0.6em;
+	}	
+	
+	
+	#loadingAnimation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+	    background: rgba(0, 0, 0, 0.7); /* Dunkelgrauer, halbtransparenter Hintergrund */
+    border-radius: 10px;             /* Abgerundete Ecken */
+    padding: 20px;                   /* Abstände um den Spinner */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#loadingContainer {
+    background: rgba(0, 0, 0, 0.7); /* Dunkelgrauer, halbtransparenter Hintergrund */
+    border-radius: 10px;             /* Abgerundete Ecken */
+    padding: 20px;                   /* Abstände um den Spinner */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+       /* Basisstyling */
+        .submenu {
+            display: none; /* Untermenüs standardmäßig versteckt */
+            margin: 10px 0;
+        }
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #000;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+.hidden {
+    display: none;
+}
+
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+        @media (max-width: 768px) {
+		#imageContainer img {
+		    max-width: 45vh;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+        }
+h2 {
+	font-size: 0.9em;
+}
+		
+h3 {
+	font-size: 0.8em;
+}
+/*########################################################*/
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup {
+            background: rgba(0, 0, 0, 0.7); /* Dunkelgrauer, halbtransparenter Hintergrund */
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+			max-height: 80%; /* Begrenzung der Höhe */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+			font-size: 0.9em;
+			overflow-y: auto; /* Scrollbar aktivieren */
+			text-align: left; /* Links ausrichten */
+        }
+
+        .popup h1 {
+            margin-top: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            /*background: none;*/
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .open-btn {
+            padding: 10px 20px;
+            font-size: 0.9em;
+            /*background: rgba(0, 0, 0, 0.7); /* Dunkelgrauer, halbtransparenter Hintergrund */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .open-btn:hover {
+            /*background: rgba(0, 0, 0, 0.7); /* Dunkelgrauer, halbtransparenter Hintergrund */
+        }
+
+    </style>
+</head>
+<body>
+<div id="header">
+    <h1>&#127758; Placemarkr &#x1F4CD;</h1>
+    <h2>Für JPG - JPEG und HEIC - HEIF Bilder</h2>
+	<h3>kein Upload, das Bild wird in ihrem Browser verarbeitet.</h3>
+	
+	
+</div>
+<main>
+    <input type="file" id="fileInput"/>
+    <br>
+
+<!-- Menü zur Auswahl der Anzeigeoption -->
+<select id="displayOption" onchange="updateDisplayOption()">
+<option value="qrCodeOnly" selected>Nur QR-Code anzeigen</option>
+  <option value="locationOnly">Nur Ort anzeigen</option>
+</select>
+
+<!-- Menü zur Anpassung der Textgröße -->
+<div id="textSizeContainer" class="hidden">
+    <label for="font-size">Textgröße: </label>
+    <select id="font-size">
+        <option value="40vh">Klein</option>
+        <option value="50vh" selected>Normal</option>
+        <option value="80vh">Groß</option>
+        <option value="100vh">Sehr groß</option>
+    </select>
+</div>
+
+<!-- Menü zur Anpassung der QR-Code-Größe -->
+<div id="qrSizeContainer">
+    <label for="qrSizeSelect">QR-Code-Größe:</label>
+    <select id="qrSizeSelect">
+        <option value="0.10">10%</option>
+        <option value="0.11">11%</option>
+        <option value="0.12">12%</option>
+        <option value="0.13">13%</option>
+        <option value="0.14">14%</option>
+        <option value="0.15" selected>15%</option>
+        <option value="0.16">16%</option>
+        <option value="0.17">17%</option>
+        <option value="0.18">18%</option>
+        <option value="0.19">19%</option>
+        <option value="0.20">20%</option>
+        <option value="0.21">21%</option>
+        <option value="0.22">22%</option>
+        <option value="0.23">23%</option>
+        <option value="0.24">24%</option>
+        <option value="0.25">25%</option>
+    </select>
+</div>
+
+<div id="qrMarginXContainer">
+    <label for="qrMarginXInput">QR-Code Abstand ◄► (in px):</label>
+    <input type="number" id="qrMarginXInput" style="width: 50px;" value="25" min="0" step="1" /><label2>25px Standard</label2>
+</div>
+
+<!-- QR-Code Vertikaler Abstand -->
+<div id="qrMarginYContainer">
+    <label for="qrMarginYInput">QR-Code Abstand ▲▼ (in px):</label>
+    <input type="number" id="qrMarginYInput" style="width: 50px;" value="25" min="0" step="1" /><label2>25px Standard</label2>
+</div>
+
+<!-- Menü zur Anpassung der QR-Code-Position -->
+<div id="qrPositionContainer">
+    <label for="qrPositionSelect">QR-Code-Position:</label>
+    <select id="qrPositionSelect">
+        <option value="bottom-right" selected>Rechts unten</option>
+        <option value="bottom-left">Links unten</option>
+        <option value="top-right">Rechts oben</option>
+        <option value="top-left">Links oben</option>
+    </select>
+</div>
+
+<div id="locationOffsetContainer" class="hidden">
+    <label for="horizontalOffset">Text Abstand ◄► (px): </label>
+    <input type="number" id="horizontalOffset" value="50" style="width: 50px;"><label2>50px Standard</label2><!-- Standardwert: 20px -->
+    <br>
+    <label for="verticalOffset">Text Abstand ▲▼ (px): </label>
+    <input type="number" id="verticalOffset" value="25" style="width: 50px;"><label2>25px Standard</label2> <!-- Standardwert: 20px -->
+</div>
+
+    <p id="gpsData">Keine GPS-Daten gefunden.</p>
+<div id="loadingAnimation" style="display: none;">
+    <div class="spinner"></div>
+</div>
+    <button id="updateBtn" style="display: none;">Aktualisieren</button><button id="downloadBtn" style="display: none;">Bild herunterladen</button>
+    <div id="imageContainer"></div>
+    <div id="qrCodeContainer"></div>
+</main>
+
+<footer>
+    <label class="open-btn" onclick="openPopup()">Datenschutzerklärung</label>
+    <div class="overlay" id="privacyOverlay">
+        <div class="popup">
+            <button class="close-btn" onclick="closePopup()">&times;</button>
+<p><br />Datenschutzerkl&auml;rung<br />
+<br />Vielen Dank f&uuml;r Ihr Vertrauen in unsere Anwendung. Der Schutz Ihrer personenbezogenen Daten ist uns wichtig. Im Folgenden erl&auml;utern wir, wie und zu welchem Zweck Daten verarbeitet werden.<br />
+<br />1. Allgemeine Informationen<br />Die Nutzung dieser Anwendung erfolgt ohne Registrierung. Ihre personenbezogenen Daten werden nur verarbeitet, soweit dies f&uuml;r die Nutzung der angebotenen Funktionen notwendig ist. Es werden keine Bilder, personenbezogene Daten oder andere sensiblen Informationen auf unseren Servern gespeichert.<br />
+<br />2. Verarbeitung von Bilddaten<br />- Lokale Bildbearbeitung: Alle Bilder, die Sie in die Anwendung laden, werden ausschlie&szlig;lich in Ihrem Browser verarbeitet. Es findet keine &Uuml;bertragung der Bilddaten auf unsere Server oder an Dritte statt.
+<br />- Die Bildbearbeitung erfolgt vollst&auml;ndig clientseitig &uuml;ber JavaScript. Dadurch bleibt Ihre Privatsph&auml;re gewahrt.
+<br /><br />3. Nutzung von GPS-Daten<br />- Zur Ermittlung von Ortsinformationen nutzen wir Ihre GPS-Daten.
+<br />- Diese Daten werden lokal in Ihrem Browser verarbeitet und &uuml;ber die OpenStreetMap-Dienste verwendet, um den entsprechenden Ortsnamen zu bestimmen.
+<br />- Die GPS-Daten werden nicht gespeichert oder an Dritte weitergegeben, abgesehen von der &Uuml;bermittlung an OpenStreetMap zur Ermittlung des Ortsnamens. OpenStreetMap kann in diesem Zusammenhang eigene Datenrichtlinien haben, die Sie hier einsehen k&ouml;nnen: https://www.openstreetmap.org/privacy.<br />
+<br />4. Verwendung des QR-Codes<br />- Unsere Anwendung generiert QR-Codes, die auf Google-Links verweisen. Durch das Scannen dieser QR-Codes k&ouml;nnen Nutzer auf die entsprechenden Inhalte zugreifen.
+<br />- Beachten Sie, dass bei der Nutzung von Google-Diensten die Datenschutzerkl&auml;rung von Google gilt. Weitere Informationen finden Sie unter: https://policies.google.com/privacy.<br />
+<br />5. Speicherung von JavaScript-Daten<br />- Der gesamte JavaScript-Code, der f&uuml;r die Funktionalit&auml;t dieser Anwendung notwendig ist, wird von unseren Servern bereitgestellt.<br />- Es findet keine Speicherung oder Verarbeitung Ihrer pers&ouml;nlichen Daten auf unseren Servern statt. Der JavaScript-Code wird lediglich ausgef&uuml;hrt, um die Funktionen der Anwendung in Ihrem Browser bereitzustellen.<br /><br />6. Sicherheit und Schutz der Daten<br />Wir haben technische und organisatorische Ma&szlig;nahmen implementiert, um sicherzustellen, dass Ihre Daten sicher sind. Durch die lokale Verarbeitung von Bild- und GPS-Daten wird das Risiko einer unbefugten Weitergabe minimiert.<br /><br />7. Ihre Rechte<br />Sie haben das Recht:<br />- Auskunft &uuml;ber die Verarbeitung Ihrer personenbezogenen Daten zu erhalten (Art. 15 DSGVO),<br />- eine Berichtigung unrichtiger oder unvollst&auml;ndiger Daten zu verlangen (Art. 16 DSGVO),<br />- eine L&ouml;schung Ihrer Daten zu fordern, sofern keine gesetzlichen Aufbewahrungspflichten bestehen (Art. 17 DSGVO),<br />- die Einschr&auml;nkung der Verarbeitung zu verlangen (Art. 18 DSGVO),<br />- sich bei einer Aufsichtsbeh&ouml;rde zu beschweren, wenn Sie der Meinung sind, dass die Verarbeitung Ihrer Daten gegen die Datenschutzvorschriften verst&ouml;&szlig;t (Art. 77 DSGVO).<br /><br />8. &Auml;nderungen der Datenschutzerkl&auml;rung<br />Wir behalten uns das Recht vor, diese Datenschutzerkl&auml;rung anzupassen, um sie an ge&auml;nderte gesetzliche Vorschriften oder neue Funktionen der Anwendung anzupassen. Die aktuelle Version der Datenschutzerkl&auml;rung ist jederzeit &uuml;ber die Anwendung abrufbar.<br /><br />9. Kontakt<br />Bei Fragen zu dieser Datenschutzerkl&auml;rung oder zur Verarbeitung Ihrer personenbezogenen Daten kontaktieren Sie uns bitte unter:<br /><br />[Ihr Unternehmen/Verantwortlicher]<br />E-Mail: [Ihre E-Mail-Adresse]<br />Adresse: [Ihre Adresse]</p>
+        </div>
+    </div>
+	
+	<label class="open-btn" onclick="openPopup2()">Impressum</label>
+    <div class="overlay" id="privacyOverlay2">
+        <div class="popup">
+            <button class="close-btn" onclick="closePopup2()">&times;</button>
+            <h2>Impressum</h2>
+
+        </div>
+    </div>
+</footer>
+
+<script>
+        function openPopup() {
+            document.getElementById('privacyOverlay').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('privacyOverlay').style.display = 'none';
+        }
+		function openPopup2() {
+            document.getElementById('privacyOverlay2').style.display = 'flex';
+        }
+
+        function closePopup2() {
+            document.getElementById('privacyOverlay2').style.display = 'none';
+        }
+
+let displayOption = 'qrCodeOnly'; // Standardoption: Beide (QR-Code + Ortstext)
+
+function updateDisplayOption() {
+    displayOption = document.getElementById('displayOption').value;
+	    
+    const textSizeContainer = document.getElementById("textSizeContainer");
+    const qrSizeContainer = document.getElementById("qrSizeContainer");
+    const qrPositionContainer = document.getElementById("qrPositionContainer");
+	const locationOffsetContainer = document.getElementById("locationOffsetContainer");
+	const qrMarginXContainer = document.getElementById("qrMarginXContainer");
+	const qrMarginYContainer = document.getElementById("qrMarginYContainer");
+
+    // Wenn "Nur Ortstext anzeigen" ausgewählt ist
+    if (displayOption === "locationOnly") {
+        textSizeContainer.classList.remove("hidden");  // Textgröße sichtbar
+		locationOffsetContainer.classList.remove("hidden");
+        qrSizeContainer.classList.add("hidden");      // QR-Code-Größe unsichtbar
+        qrPositionContainer.classList.add("hidden");  // QR-Code-Position unsichtbar
+		qrMarginXContainer.classList.add("hidden");   // QR-Code-Größe sichtbar
+        qrMarginYContainer.classList.add("hidden"); // QR-Code-Position sichtbar
+    }
+    // Wenn "Nur QR-Code anzeigen" ausgewählt ist
+    else if (displayOption === "qrCodeOnly") {
+        textSizeContainer.classList.add("hidden");    // Textgröße unsichtbar
+		locationOffsetContainer.classList.add("hidden");
+        qrSizeContainer.classList.remove("hidden");   // QR-Code-Größe sichtbar
+        qrPositionContainer.classList.remove("hidden"); // QR-Code-Position sichtbar
+		qrMarginXContainer.classList.remove("hidden");   // QR-Code-Größe sichtbar
+        qrMarginYContainer.classList.remove("hidden"); // QR-Code-Position sichtbar
+		
+    }
+}
+
+let originalFileName = '';  // Variable für den Originaldateinamen
+///////////////////
+//////////////////
+        // Funktion zum Ändern der Textgröße
+        document.getElementById('font-size').addEventListener('change', function() {
+            const selectedSize = this.value;
+            //document.getElementById('location').style.fontSize = selectedSize;
+        });
+function getLocationFromCoordinates(latitude, longitude) {
+    return new Promise((resolve, reject) => {
+        const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.address) {
+               const city = data.address.city || data.address.town || data.address.village;
+                const state = data.address.state;
+                const country = data.address.country;
+
+                // Setze den Ort zusammen
+                let location = city || "Ort nicht gefunden";
+                if (state) {
+                    location += " - " + state;
+                }
+				 resolve(location);
+                } else {
+                    reject("Ort konnte nicht gefunden werden.");
+                }
+            })
+            .catch(error => {
+                reject("Fehler bei der Abfrage der API: " + error);
+            });
+    });
+}
+/////////////////
+function drawQRCode(imageUrl, qrSizeRatio, position, googleMapsUrl, location) {
+    const img = new Image();
+    img.src = imageUrl;
+
+    const colorThief = new ColorThief();
+
+    img.onload = function() {
+        const dominantColor = colorThief.getColor(img);
+        const [r, g, b] = dominantColor;
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        const dotColor = brightness > 128 ? "#000" : "#FFF"; // Schwarz oder Weiß
+
+        const backgroundColor = rgbToHex(r, g, b);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const qrCode = new QRCodeStyling({
+            type: "image",
+            data: googleMapsUrl,
+            image: null,
+            width: 200,
+            height: 200,
+            dotsOptions: {
+                color: dotColor,
+                type: "rounded",
+            },
+            qrOptions: {
+                errorCorrectionLevel: "L"
+            },
+            backgroundOptions: {
+                color: backgroundColor,
+            }
+        });
+
+        qrCode.getRawData("png").then((blob) => {
+            const qrUrl = URL.createObjectURL(blob);
+            const qrImage = new Image();
+            qrImage.src = qrUrl;
+
+qrImage.onload = function() {
+    // Hole den horizontalen und vertikalen Abstand aus den Eingabefeldern
+    const marginX = parseInt(document.getElementById("qrMarginXInput").value, 10); // Horizontaler Abstand in px
+    const marginY = parseInt(document.getElementById("qrMarginYInput").value, 10); // Vertikaler Abstand in px
+    const qrSize = Math.min(canvas.width, canvas.height) * qrSizeRatio;
+    let qrX = marginX, qrY = marginY;
+
+    switch (position) {
+        case 'bottom-right':
+            qrX = canvas.width - qrSize - marginX;
+            qrY = canvas.height - qrSize - marginY;
+            break;
+        case 'bottom-left':
+            qrX = marginX;
+            qrY = canvas.height - qrSize - marginY;
+            break;
+        case 'top-right':
+            qrX = canvas.width - qrSize - marginX;
+            qrY = marginY;
+            break;
+        case 'top-left':
+            qrX = marginX;
+            qrY = marginY;
+            break;
+                }
+
+                // Wenn "QR-Code nur" ausgewählt ist, zeichne nur den QR-Code
+                if (displayOption === 'qrCodeOnly') {
+                    ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+                }
+
+                // Ortstext nur anzeigen, wenn "Ortstext nur" oder "Beides" ausgewählt ist
+if (displayOption === 'locationOnly') {
+    // Schriftgröße dynamisch aus dem Menü holen
+    const fontSize = parseInt(document.getElementById('font-size').value);
+    const padding = 10; // Abstand des Texts vom Hintergrund (obere Seite)
+    const bottomPadding = 25; // Extra Padding für den unteren Teil des Hintergrunds
+    ctx.font = `${fontSize}px sans-serif`; // Dynamische Schriftgröße setzen
+    const textWidth = ctx.measureText(location).width; // Breite des Textes
+    const textHeight = fontSize; // Höhe des Textes (entspricht der Schriftgröße)
+
+    // Hintergrund für den Text (abgerundet und leicht transparent)
+    const backgroundPadding = 50; // Extra Platz für Hintergrund
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";  // Transparenter schwarzer Hintergrund
+
+    // Horizontale und vertikale Abstände aus den Eingabefeldern holen
+    const horizontalOffset = parseInt(document.getElementById('horizontalOffset').value) || 50; // Standardwert: 20px
+    const verticalOffset = parseInt(document.getElementById('verticalOffset').value) || 25; // Standardwert: 20px
+
+    // Wenn Ortstext nur oder beide Optionen ausgewählt sind, zeichne den Text links unten
+    let textX = horizontalOffset; // Horizontaler Abstand vom linken Rand
+    let textYPosition = canvas.height - verticalOffset; // Vertikaler Abstand vom unteren Rand
+
+    if (displayOption === 'locationOnly') {
+        // Berechne die Höhe des Hintergrunds mit Padding
+        const backgroundHeight = textHeight + padding + bottomPadding; // Texthöhe + oberes Padding + extra unteres Padding
+        const backgroundWidth = textWidth + backgroundPadding * 2; // Textbreite + seitliches Padding
+
+        // Hintergrund des Textes zeichnen, der Text bleibt links ausgerichtet
+        ctx.beginPath();
+        const cornerRadius = 20; // Radius der abgerundeten Ecken
+
+        // Zeichne den Hintergrund
+        ctx.moveTo(textX - backgroundPadding + cornerRadius, textYPosition - textHeight - padding);
+        ctx.arcTo(textX - backgroundPadding, textYPosition - textHeight - padding, textX - backgroundPadding, textYPosition + bottomPadding, cornerRadius); // Oben links
+        ctx.arcTo(textX - backgroundPadding, textYPosition + bottomPadding, textX + textWidth + backgroundPadding, textYPosition + bottomPadding, cornerRadius); // Unten links (erweiterter Bereich)
+        ctx.arcTo(textX + textWidth + backgroundPadding, textYPosition + bottomPadding, textX + textWidth + backgroundPadding, textYPosition - textHeight - padding, cornerRadius); // Unten rechts
+        ctx.arcTo(textX + textWidth + backgroundPadding, textYPosition - textHeight - padding, textX - backgroundPadding + cornerRadius, textYPosition - textHeight - padding, cornerRadius); // Oben rechts
+        ctx.closePath();
+        ctx.fill(); // Hintergrund füllen
+    }
+
+    // Text auf den Hintergrund setzen (weiße Schrift)
+    ctx.fillStyle = "#FFF";  // Weiße Schrift
+    ctx.fillText(location, textX, textYPosition);
+}
+
+
+
+                const finalImage = new Image();
+                finalImage.src = canvas.toDataURL("image/jpeg");
+                const imageContainer = document.getElementById('imageContainer');
+                imageContainer.innerHTML = "";
+                imageContainer.appendChild(finalImage);
+
+                document.getElementById("loadingAnimation").style.display = "none";
+
+                const downloadBtn = document.getElementById("downloadBtn");
+                downloadBtn.style.display = "inline-block";
+                downloadBtn.onclick = function() {
+                    const link = document.createElement("a");
+                    const fileNameWithQr = originalFileName.replace(/\.[^/.]+$/, "") + "_qr.jpg";
+                    link.download = fileNameWithQr;
+                    link.href = finalImage.src;
+                    link.click();
+                };
+
+                const qrCodeContainer = document.getElementById("qrCodeContainer");
+                qrCodeContainer.innerHTML = "";
+                const qrCodeImage = new Image();
+                qrCodeImage.src = qrUrl;
+                qrCodeImage.style.width = "200px";
+                qrCodeContainer.appendChild(qrCodeImage);
+
+                const qrDownloadBtn = document.createElement("button");
+                qrDownloadBtn.textContent = "QR-Code herunterladen";
+                qrDownloadBtn.onclick = function() {
+                    const qrLink = document.createElement("a");
+                    qrLink.download = "QRCode.png";
+                    qrLink.href = qrCodeImage.src;
+                    qrLink.click();
+                };
+                qrCodeContainer.appendChild(qrDownloadBtn);
+
+                if (googleMapsUrl) {
+                    const mapsLink = document.createElement("a");
+                    mapsLink.href = googleMapsUrl;
+                    mapsLink.textContent = "Google Maps Link öffnen";
+                    mapsLink.target = "_blank";
+                    qrCodeContainer.appendChild(mapsLink);
+                }
+            };
+        }).catch((error) => {
+            console.error("Fehler beim Erstellen des QR-Codes:", error);
+            document.getElementById("loadingAnimation").style.display = "none";
+        });
+    };
+}
+
+
+
+// Funktion zur Umwandlung von RGB zu Hex
+function rgbToHex(r, g, b) {
+    return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).toUpperCase();
+}
+
+// Funktion zur Berechnung der Komplementärfarbe (optional)
+function getComplementaryColor(rgb) {
+    const r = rgb[0];
+    const g = rgb[1];
+    const b = rgb[2];
+
+    // Berechne die Komplementärfarbe (255 - Originalfarbe)
+    const compR = 255 - r;
+    const compG = 255 - g;
+    const compB = 255 - b;
+
+    return rgbToHex(compR, compG, compB);
+}
+
+// Der eventListener für das Hochladen von Bildern und das Abrufen der GPS-Daten
+//let globalImageUrl = null; // Globale Variable für das Bild
+document.getElementById('fileInput').addEventListener('change', function(event) {
+let globalImageUrl = null; // Globale Variable für das Bild
+//document.getElementById('imageContainer').innerHTML = '';  // Leert den Container
+    const file = event.target.files[0];
+    if (!file) {
+        alert("Bitte wählen Sie eine Datei aus.");
+        return;
+    }
+
+    originalFileName = file.name; // Speichere den Originaldateinamen
+
+   // Überprüfe den Dateityp anhand des MIME-Typs oder der Dateiendung
+   const reader = new FileReader();
+    
+    // Event-Handler für den FileReader, wenn das Bild geladen ist
+    reader.onload = function(event) {
+        const arrayBuffer = event.target.result;
+
+        try {
+            const tags = ExifReader.load(arrayBuffer, { expanded: true });
+			let location = "Ort nicht gefunden"; // Standardort
+            let gpsMessage = "Keine GPS-Daten gefunden.";
+            let googleMapsUrl = null;
+			document.getElementById('imageContainer').innerHTML = '';  // Leert den Container
+			document.getElementById('qrCodeContainer').innerHTML = '';  // Leert den Container
+
+            if (tags.gps && tags.gps.Latitude && tags.gps.Longitude) {
+                let latitude = tags.gps.Latitude.description || tags.gps.Latitude;
+                let longitude = tags.gps.Longitude.description || tags.gps.Longitude;
+                document.getElementById("loadingAnimation").style.display = "block";
+                if (!isNaN(latitude) && !isNaN(longitude)) {
+                    // GPS-Daten auf 6 Dezimalstellen begrenzen
+                    latitude = parseFloat(latitude).toFixed(5);
+                    longitude = parseFloat(longitude).toFixed(5);
+
+                    gpsMessage = `GPS-Koordinaten: Breitengrad: ${latitude}, Längengrad: ${longitude}`;
+                    googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+					
+					getLocationFromCoordinates(latitude, longitude)
+					.then(resolvedLocation => {
+                        location = resolvedLocation;
+                        drawQRCode(
+                            globalImageUrl,
+                            parseFloat(document.getElementById('qrSizeSelect').value),
+                            document.getElementById('qrPositionSelect').value,
+							googleMapsUrl,
+							location
+							);
+                    });
+                }
+            }
+            document.getElementById("gpsData").textContent = gpsMessage;
+
+            // Überprüfe den Dateityp anhand des MIME-Typs oder der Dateiendung
+            const fileType = file.type || file.name.split('.').pop().toLowerCase();
+
+            if (fileType === 'image/jpeg' || fileType === 'image/jpg') {
+                // Wenn die Datei bereits ein JPEG ist, direkt anzeigen
+				document.getElementById("loadingAnimation").style.display = "block";
+                globalImageUrl = URL.createObjectURL(file);
+                drawQRCode(
+                    globalImageUrl,
+                    parseFloat(document.getElementById('qrSizeSelect').value),
+                    document.getElementById('qrPositionSelect').value,
+                    googleMapsUrl,
+					location				
+                );
+				
+                // "Aktualisieren"-Button anzeigen
+                document.getElementById("updateBtn").style.display = "inline-block";
+				document.getElementById("loadingAnimation").style.display = "block";
+                document.getElementById("updateBtn").onclick = function() {
+                    drawQRCode(
+                        globalImageUrl,
+                        parseFloat(document.getElementById('qrSizeSelect').value),
+                        document.getElementById('qrPositionSelect').value,
+                        googleMapsUrl,
+						location
+                    );
+                };
+
+} else if (fileType === 'image/heic' || fileType === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
+                // Wenn es ein HEIC-Bild ist, umwandeln
+                heic2any({ blob: file, toType: 'image/jpeg' })
+                    .then(function(resultBlob) {
+						document.getElementById("loadingAnimation").style.display = "block";
+                        globalImageUrl = URL.createObjectURL(resultBlob); // Speichere Bild-URL
+                        drawQRCode(
+                            globalImageUrl,
+                            parseFloat(document.getElementById('qrSizeSelect').value),
+                            document.getElementById('qrPositionSelect').value,
+                            googleMapsUrl,
+							location
+					
+                        );
+						
+
+                        // "Aktualisieren"-Button anzeigen
+                        document.getElementById("updateBtn").style.display = "inline-block";
+						document.getElementById("loadingAnimation").style.display = "block";
+                        document.getElementById("updateBtn").onclick = function() {
+                            drawQRCode(
+                                globalImageUrl,
+                                parseFloat(document.getElementById('qrSizeSelect').value),
+                                document.getElementById('qrPositionSelect').value,
+                                googleMapsUrl,
+								location
+                            );
+                        };
+                    })
+                    .catch(function(error) {
+                        console.error('Fehler bei HEIC-Konvertierung:', error);
+                        alert("Es gab ein Problem bei der Umwandlung der HEIC-Datei.");
+                    });
+            } else {
+                alert("Unterstütztes Dateiformat fehlt. Bitte wählen Sie ein JPEG- oder HEIC-Bild.");
+            }
+
+        } catch (error) {
+            console.error('Fehler beim Auslesen der EXIF-Daten:', error);
+        }
+    };
+
+    // Lese die Datei als ArrayBuffer ein
+    reader.readAsArrayBuffer(file);
+});
+</script>
+</body>
+</html>
