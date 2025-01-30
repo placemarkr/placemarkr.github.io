@@ -242,9 +242,10 @@ h3 {
     <br>
 
 <!-- Menü zur Auswahl der Anzeigeoption -->
+<label for="font-size">Style: </label>
 <select id="displayOption" onchange="updateDisplayOption()">
-<option value="qrCodeOnly" selected>Nur QR-Code anzeigen</option>
-  <option value="locationOnly">Nur Ort anzeigen</option>
+<option value="qrCodeOnly" selected>QR-Code anzeigen</option>
+  <option value="locationOnly">Ort anzeigen</option>
 </select>
 
 <!-- Menü zur Anpassung der Textgröße -->
@@ -315,7 +316,8 @@ h3 {
 <div id="loadingAnimation" style="display: none;">
     <div class="spinner"></div>
 </div>
-    <button id="updateBtn" style="display: none;">Aktualisieren</button><button id="downloadBtn" style="display: none;">Bild herunterladen</button>
+    <button id="updateBtn" style="display: none;">Änderung übernehmen</button><br>
+	<button id="downloadBtn" style="display: none;">Bild herunterladen</button>
     <div id="imageContainer"></div>
     <div id="qrCodeContainer"></div>
 </main>
@@ -347,9 +349,34 @@ h3 {
 
         </div>
     </div>
+	
+		<label class="open-btn" onclick="openPopup3()">Wie? Wo? Was?</label>
+    <div class="overlay" id="privacyOverlay3">
+        <div class="popup">
+            <button class="close-btn" onclick="closePopup3()">&times;</button>
+			<h1>Hey,</h1> 
+			um den Standort aus deinem Bild zu holen, musst du sicherstellen, 
+			<br>dass in den Kamera-Einstellungen deines Smartphones, deiner Fotokamera oder Drohne 
+			<br>die Funktion wie "Geo-Tagging", "Ort speichern" oder Ähnliches aktiviert ist. 
+			<br>Du musst nichts weiter tun, als das Bild auf die Seite zu laden, die Option
+			<br>"QR-Code" oder "Ort anzeigen" zu wählen und das Bild wieder herunterzuladen. 
+			<br>Super einfach und praktisch für Fotobücher, Sofortdrucker oder alle, die nicht mehr wissen, 
+			<br>wo die besondere Aufnahme entstanden ist. 
+			<br>
+			<br>Sei dir dabei sicher, dass dein Foto auf unserer Seite nicht gespeichert wird. 
+			<br>Die Bildverarbeitung findet innerhalb deines Browsers statt. 
+			<br>Einzig durch die Funktion "Ort anzeigen" werden nur die Koordinaten zur Ortsbestimmung 
+			<br>an OpenStreetMap geschickt. 
+			<br>Dabei gelten die Datenschutzbestimmungen von OpenStreetMap.
+
+        </div>
+    </div>
+	
 </footer>
 
 <script>
+
+
         function openPopup() {
             document.getElementById('privacyOverlay').style.display = 'flex';
         }
@@ -363,6 +390,14 @@ h3 {
 
         function closePopup2() {
             document.getElementById('privacyOverlay2').style.display = 'none';
+        }
+		
+		function openPopup3() {
+            document.getElementById('privacyOverlay3').style.display = 'flex';
+        }
+
+        function closePopup3() {
+            document.getElementById('privacyOverlay3').style.display = 'none';
         }
 
 let displayOption = 'qrCodeOnly'; // Standardoption: Beide (QR-Code + Ortstext)
@@ -379,6 +414,7 @@ function updateDisplayOption() {
 
     // Wenn "Nur Ortstext anzeigen" ausgewählt ist
     if (displayOption === "locationOnly") {
+		document.getElementById("updateBtn").click();
         textSizeContainer.classList.remove("hidden");  // Textgröße sichtbar
 		locationOffsetContainer.classList.remove("hidden");
         qrSizeContainer.classList.add("hidden");      // QR-Code-Größe unsichtbar
@@ -388,6 +424,7 @@ function updateDisplayOption() {
     }
     // Wenn "Nur QR-Code anzeigen" ausgewählt ist
     else if (displayOption === "qrCodeOnly") {
+		document.getElementById("updateBtn").click();
         textSizeContainer.classList.add("hidden");    // Textgröße unsichtbar
 		locationOffsetContainer.classList.add("hidden");
         qrSizeContainer.classList.remove("hidden");   // QR-Code-Größe sichtbar
@@ -477,12 +514,15 @@ function drawQRCode(imageUrl, qrSizeRatio, position, googleMapsUrl, location) {
             const qrImage = new Image();
             qrImage.src = qrUrl;
 
+
 qrImage.onload = function() {
+
     // Hole den horizontalen und vertikalen Abstand aus den Eingabefeldern
     const marginX = parseInt(document.getElementById("qrMarginXInput").value, 10); // Horizontaler Abstand in px
     const marginY = parseInt(document.getElementById("qrMarginYInput").value, 10); // Vertikaler Abstand in px
     const qrSize = Math.min(canvas.width, canvas.height) * qrSizeRatio;
     let qrX = marginX, qrY = marginY;
+	
 
     switch (position) {
         case 'bottom-right':
@@ -551,7 +591,7 @@ if (displayOption === 'locationOnly') {
 
     // Text auf den Hintergrund setzen (weiße Schrift)
     ctx.fillStyle = "#FFF";  // Weiße Schrift
-    ctx.fillText(location, textX, textYPosition);
+    ctx.fillText(location, textX, textYPosition);	
 }
 
 
