@@ -115,6 +115,15 @@
 		z-index: 10; /* Stellen Sie sicher, dass der Footer nicht hinter anderen Elementen liegt */
         padding: 7px 0;
 }
+	    /* Anpassung für Bildschirme kleiner als 768px (Mobile) */
+@media screen and (max-width: 768px) {
+    footer {
+        position: relative;  /* Fixiertes Layout deaktivieren */
+        padding: 15px;  /* Mehr Padding für bessere Nutzbarkeit */
+        text-align: center;
+        font-size: 14px;  /* Kleinere Schriftgröße */
+    }
+}
 	label {
 	font-size: 0.9em;
 	}
