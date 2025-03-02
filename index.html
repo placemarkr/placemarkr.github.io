@@ -66,20 +66,50 @@
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 		}
-        button:hover {
+       /* button:hover {
             background-color: #45a049;
-        }
+        }*/
+		
+		button {
+        margin: 10px 0;
+        padding: 10px 15px;
+        font-size: 0.9em;
+        text-decoration: none;
+        color: white;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+		}
+		
+		button:hover{
+        background-color: #45a049;
+		}
+		
+		#dl_container {
+		width: 180px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        /*align-items: center;*/
+        margin: auto;
+        padding: 0 10px;
+        background-color: #fff; /* Hintergrundfarbe für besseren Kontrast */
+        /*border: 1px solid #ddd; /* Rahmen um den Container */
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Leichter Schatten */
+		}
 		
 		#qrCodeContainer {
 		width: 200px;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
+        /*align-items: center;*/
         margin: auto;
         padding: 0 10px;
         background-color: #fff; /* Hintergrundfarbe für besseren Kontrast */
-        border: 1px solid #ddd; /* Rahmen um den Container */
+        /*border: 1px solid #ddd; /* Rahmen um den Container */
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Leichter Schatten */
     }
@@ -115,9 +145,10 @@
 		z-index: 10; /* Stellen Sie sicher, dass der Footer nicht hinter anderen Elementen liegt */
         padding: 7px 0;
 }
+
 	    /* Anpassung für Bildschirme kleiner als 768px (Mobile) */
-@media screen and (max-width: 768px) {
-    footer {
+	@media screen and (max-width: 768px) {
+		footer {
 		position: fixed;
 		left: 0px;
 		bottom: 0px;
@@ -127,8 +158,9 @@
 		z-index: 10; /* Stellen Sie sicher, dass der Footer nicht hinter anderen Elementen liegt */
         padding: 7px 0;
 	    font-size: 0.9em;
-    }
-}
+		}
+	}
+	
 	label {
 	font-size: 0.9em;
 	}
@@ -341,8 +373,10 @@ h3 {
 <div id="loadingAnimation" style="display: none;">
     <div class="spinner"></div>
 </div>
+	<div id="dl_container">
     <button id="updateBtn" style="display: none;">Änderung übernehmen</button><br>
-	<button id="downloadBtn" style="display: none;">Bild herunterladen</button>
+	<button id="downloadBtn" style="display: none;">Bild herunterladen</button></div>
+	<br>
     <div id="imageContainer"></div>
     <div id="qrCodeContainer"></div>
 </main>
