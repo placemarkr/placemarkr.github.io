@@ -118,10 +118,15 @@
 	    /* Anpassung für Bildschirme kleiner als 768px (Mobile) */
 @media screen and (max-width: 768px) {
     footer {
-        position: relative;  /* Fixiertes Layout deaktivieren */
-        padding: 15px;  /* Mehr Padding für bessere Nutzbarkeit */
-        text-align: center;
-        font-size: 14px;  /* Kleinere Schriftgröße */
+		position: fixed;
+		left: 0px;
+		bottom: 0px;
+		right: 0px;
+        background-color: #4CAF50;
+        color: white;
+		z-index: 10; /* Stellen Sie sicher, dass der Footer nicht hinter anderen Elementen liegt */
+        padding: 7px 0;
+	    font-size: 0.9em;
     }
 }
 	label {
