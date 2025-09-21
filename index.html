@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Placemarkr</title>
+	<meta name="description" content="Mit placemarkr.de kannst du EXIF-GPS-Daten aus Fotos online auslesen und direkt im Bild als QR-Code oder Text anzeigen lassen. Einfach, schnell & kostenlos.">
+    <title>Placemarkr.de - EXIF GPS-Daten aus Fotos lesen und als QR-Code oder Text anzeigen</title>
 	
 	<link rel="icon" type="image/png" href="icon/favicon-96x96.png" sizes="96x96" />
 	<link rel="icon" type="image/svg+xml" href="icon/favicon.svg" />
 	<link rel="shortcut icon" href="icon/favicon.ico" />
 	<link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png" />
 	<link rel="manifest" href="icon/site.webmanifest" />
-
     <script src="js/heic2any.min.js"></script>
     <script src="js/qr-code-styling.js"></script>
     <script src="js/exif-reader.js"></script>
@@ -30,10 +30,6 @@
             color: white;
             padding: 5px 0;
             margin-bottom: 10px;
-			/*background-image: url(js/buch3.webp);
-			background-size: auto 50px;
-			background-position: center;
-			background-repeat: no-repeat;*/
         }
         main {
             padding: 20px;
@@ -51,14 +47,14 @@
             margin: 10px 0;
         }
         select, button, input {
-	    font-family: Arial, sans-serif;
+			font-family: sans-serif;
             padding: 8px;
             font-size: 0.9em;
             margin: 5px 5px;
             border: 1px solid #ddd;
             border-radius: 5px;
             cursor: pointer;
-	    background-color: #e9e9ed
+			background-color: #e9e9ed
 			
         }
 		#imageContainer img {
@@ -164,6 +160,7 @@
 	
 	label {
 	font-size: 0.9em;
+	font-family: Arial, sans-serif;
 	}
 	label2 {
 	font-size: 0.6em;
@@ -290,7 +287,7 @@ h3 {
 <body>
 <div id="header">
     <h1>
-        <a href=""><img src="logo2.png" alt="Logo" style="height: 110px; vertical-align: middle;"></a>
+        <a href=""><img src="logo.png" alt="Logo" style="height: 110px; vertical-align: middle;"></a>
         Placemarkr
     </h1>
     <h2>Für JPG - JPEG und HEIC - HEIF Bilder</h2>
@@ -320,7 +317,7 @@ h3 {
 
 <!-- Menü zur Anpassung der QR-Code-Größe -->
 <div id="qrSizeContainer">
-    <label for="qrSizeSelect">QR-Code-Größe:</label>
+    <label for="qrSizeSelect">QR-Code Größe:</label>
     <select id="qrSizeSelect">
         <option value="0.10">10%</option>
         <option value="0.11">11%</option>
@@ -354,11 +351,13 @@ h3 {
 
 <!-- Menü zur Anpassung der QR-Code-Position -->
 <div id="qrPositionContainer">
-    <label for="qrPositionSelect">QR-Code-Position:</label>
+    <label for="qrPositionSelect">QR-Code Position:</label>
     <select id="qrPositionSelect">
         <option value="bottom-right" selected>Rechts unten</option>
+		<option value="bottom-center">Mittig unten</option>
         <option value="bottom-left">Links unten</option>
         <option value="top-right">Rechts oben</option>
+		<option value="top-center">Mittig oben</option>
         <option value="top-left">Links oben</option>
     </select>
 </div>
@@ -369,8 +368,38 @@ h3 {
     <br>
     <label for="verticalOffset">Text Abstand ▲▼ (px): </label>
     <input type="number" id="verticalOffset" value="25" style="width: 50px;"><label2>25px Standard</label2> <!-- Standardwert: 20px -->
+	<br>
+	<label for="textPosition">Text Position:</label>
+    <select id="textPosition">
+        <option value="bottom-right" >Rechts unten</option>
+		<option value="bottom-center">Mittig unten</option>
+        <option value="bottom-left" selected>Links unten</option>
+        <option value="top-right">Rechts oben</option>
+		<option value="top-center">Mittig oben</option>
+        <option value="top-left">Links oben</option>
+    </select>
 </div>
-
+<!--
+<select id="textPosition">
+    <option value="bottom-left">Unten links</option>
+    <option value="bottom-center">Unten Mitte</option>
+    <option value="bottom-right">Unten rechts</option>
+    <option value="top-left">Oben links</option>
+    <option value="top-center">Oben Mitte</option>
+    <option value="top-right">Oben rechts</option>
+</select>-->
+<!--
+<div id="qrPositionContainer">
+    <label for="textPosition">Text Position:</label>
+    <select id="textPosition">
+        <option value="bottom-right" >Rechts unten</option>
+		<option value="bottom-center">Mittig unten</option>
+        <option value="bottom-left" selected>Links unten</option>
+        <option value="top-right">Rechts oben</option>
+		<option value="top-center">Mittig oben</option>
+        <option value="top-left">Links oben</option>
+    </select>
+</div>-->
     <p id="gpsData">Keine GPS-Daten gefunden.</p>
 <div id="loadingAnimation" style="display: none;">
     <div class="spinner"></div>
@@ -384,10 +413,10 @@ h3 {
 </main>
 
 <footer>
-    <label class="open-btn" onclick="openPopup()">Datenschutzerklärung</label>
+    <label class="open-btn" onclick="openPopup1()">Datenschutzerklärung</label>
     <div class="overlay" id="privacyOverlay">
         <div class="popup">
-            <button class="close-btn" onclick="closePopup()">&times;</button>
+            <button class="close-btn" onclick="closePopup1()">&times;</button>
 <p><br />Datenschutzerkl&auml;rung<br />
 <br />Vielen Dank f&uuml;r Ihr Vertrauen in unsere Anwendung. Der Schutz Ihrer personenbezogenen Daten ist uns wichtig. Im Folgenden erl&auml;utern wir, wie und zu welchem Zweck Daten verarbeitet werden.<br />
 <br />1. Allgemeine Informationen<br />Die Nutzung dieser Anwendung erfolgt ohne Registrierung. Ihre personenbezogenen Daten werden nur verarbeitet, soweit dies f&uuml;r die Nutzung der angebotenen Funktionen notwendig ist. Es werden keine Bilder, personenbezogene Daten oder andere sensiblen Informationen auf unseren Servern gespeichert.<br />
@@ -398,7 +427,7 @@ h3 {
 <br />- Die GPS-Daten werden nicht gespeichert oder an Dritte weitergegeben, abgesehen von der &Uuml;bermittlung an OpenStreetMap zur Ermittlung des Ortsnamens. OpenStreetMap kann in diesem Zusammenhang eigene Datenrichtlinien haben, die Sie hier einsehen k&ouml;nnen: https://www.openstreetmap.org/privacy.<br />
 <br />4. Verwendung des QR-Codes<br />- Unsere Anwendung generiert QR-Codes, die auf Google-Links verweisen. Durch das Scannen dieser QR-Codes k&ouml;nnen Nutzer auf die entsprechenden Inhalte zugreifen.
 <br />- Beachten Sie, dass bei der Nutzung von Google-Diensten die Datenschutzerkl&auml;rung von Google gilt. Weitere Informationen finden Sie unter: https://policies.google.com/privacy.<br />
-<br />5. Speicherung von JavaScript-Daten<br />- Der gesamte JavaScript-Code, der f&uuml;r die Funktionalit&auml;t dieser Anwendung notwendig ist, wird von unseren Servern bereitgestellt.<br />- Es findet keine Speicherung oder Verarbeitung Ihrer pers&ouml;nlichen Daten auf unseren Servern statt. Der JavaScript-Code wird lediglich ausgef&uuml;hrt, um die Funktionen der Anwendung in Ihrem Browser bereitzustellen.<br /><br />6. Sicherheit und Schutz der Daten<br />Wir haben technische und organisatorische Ma&szlig;nahmen implementiert, um sicherzustellen, dass Ihre Daten sicher sind. Durch die lokale Verarbeitung von Bild- und GPS-Daten wird das Risiko einer unbefugten Weitergabe minimiert.<br /><br />7. Ihre Rechte<br />Sie haben das Recht:<br />- Auskunft &uuml;ber die Verarbeitung Ihrer personenbezogenen Daten zu erhalten (Art. 15 DSGVO),<br />- eine Berichtigung unrichtiger oder unvollst&auml;ndiger Daten zu verlangen (Art. 16 DSGVO),<br />- eine L&ouml;schung Ihrer Daten zu fordern, sofern keine gesetzlichen Aufbewahrungspflichten bestehen (Art. 17 DSGVO),<br />- die Einschr&auml;nkung der Verarbeitung zu verlangen (Art. 18 DSGVO),<br />- sich bei einer Aufsichtsbeh&ouml;rde zu beschweren, wenn Sie der Meinung sind, dass die Verarbeitung Ihrer Daten gegen die Datenschutzvorschriften verst&ouml;&szlig;t (Art. 77 DSGVO).<br /><br />8. &Auml;nderungen der Datenschutzerkl&auml;rung<br />Wir behalten uns das Recht vor, diese Datenschutzerkl&auml;rung anzupassen, um sie an ge&auml;nderte gesetzliche Vorschriften oder neue Funktionen der Anwendung anzupassen. Die aktuelle Version der Datenschutzerkl&auml;rung ist jederzeit &uuml;ber die Anwendung abrufbar.<br /><br />9. Kontakt<br />Bei Fragen zu dieser Datenschutzerkl&auml;rung oder zur Verarbeitung Ihrer personenbezogenen Daten kontaktieren Sie uns bitte unter:<br /><br />[Ihr Unternehmen/Verantwortlicher]<br />E-Mail: [Ihre E-Mail-Adresse]<br />Adresse: [Ihre Adresse]</p>
+<br />5. Speicherung von JavaScript-Daten<br />- Der gesamte JavaScript-Code, der f&uuml;r die Funktionalit&auml;t dieser Anwendung notwendig ist, wird von unseren Servern bereitgestellt.<br />- Es findet keine Speicherung oder Verarbeitung Ihrer pers&ouml;nlichen Daten auf unseren Servern statt. Der JavaScript-Code wird lediglich ausgef&uuml;hrt, um die Funktionen der Anwendung in Ihrem Browser bereitzustellen.<br /><br />6. Sicherheit und Schutz der Daten<br />Wir haben technische und organisatorische Ma&szlig;nahmen implementiert, um sicherzustellen, dass Ihre Daten sicher sind. Durch die lokale Verarbeitung von Bild- und GPS-Daten wird das Risiko einer unbefugten Weitergabe minimiert.<br /><br />7. Ihre Rechte<br />Sie haben das Recht:<br />- Auskunft &uuml;ber die Verarbeitung Ihrer personenbezogenen Daten zu erhalten (Art. 15 DSGVO),<br />- eine Berichtigung unrichtiger oder unvollst&auml;ndiger Daten zu verlangen (Art. 16 DSGVO),<br />- eine L&ouml;schung Ihrer Daten zu fordern, sofern keine gesetzlichen Aufbewahrungspflichten bestehen (Art. 17 DSGVO),<br />- die Einschr&auml;nkung der Verarbeitung zu verlangen (Art. 18 DSGVO),<br />- sich bei einer Aufsichtsbeh&ouml;rde zu beschweren, wenn Sie der Meinung sind, dass die Verarbeitung Ihrer Daten gegen die Datenschutzvorschriften verst&ouml;&szlig;t (Art. 77 DSGVO).<br /><br />8. &Auml;nderungen der Datenschutzerkl&auml;rung<br />Wir behalten uns das Recht vor, diese Datenschutzerkl&auml;rung anzupassen, um sie an ge&auml;nderte gesetzliche Vorschriften oder neue Funktionen der Anwendung anzupassen. Die aktuelle Version der Datenschutzerkl&auml;rung ist jederzeit &uuml;ber die Anwendung abrufbar.<br /><br />9. Kontakt<br />Bei Fragen zu dieser Datenschutzerkl&auml;rung oder zur Verarbeitung Ihrer personenbezogenen Daten kontaktieren Sie uns bitte unter:<br /><br />E-Mail: in<!-- pl-->fo('<!--ace-->a<!-- -->t')place<!-- in-->markr.de</p>
         </div>
     </div>
 	
@@ -412,7 +441,7 @@ h3 {
 			<br>99423 Weimar
 			<br>Deutschland</p>
 
-			<p>E-Mail-Adresse: <a href="mailto:info@placemarkr.de">info@placemarkr.de</a></p>
+			<p>E-Mail-Adresse: in<!-- pl-->fo('<!--ace-->a<!-- -->t')place<!-- in-->markr.de</p>
 
         </div>
     </div>
@@ -444,11 +473,11 @@ h3 {
 <script>
 
 
-        function openPopup() {
+        function openPopup1() {
             document.getElementById('privacyOverlay').style.display = 'flex';
         }
 
-        function closePopup() {
+        function closePopup1() {
             document.getElementById('privacyOverlay').style.display = 'none';
         }
 		function openPopup2() {
@@ -600,10 +629,18 @@ qrImage.onload = function() {
             qrX = marginX;
             qrY = canvas.height - qrSize - marginY;
             break;
+		case 'bottom-center':
+			qrX = (canvas.width - qrSize) / 2;
+			qrY = canvas.height - qrSize - marginY;
+			break;
         case 'top-right':
             qrX = canvas.width - qrSize - marginX;
             qrY = marginY;
             break;
+		case 'top-center':
+			qrX = (canvas.width - qrSize) / 2;
+			qrY = marginY;
+			break;
         case 'top-left':
             qrX = marginX;
             qrY = marginY;
@@ -615,7 +652,8 @@ qrImage.onload = function() {
                     ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
                 }
 
-                // Ortstext nur anzeigen, wenn "Ortstext nur" oder "Beides" ausgewählt ist
+
+/*                // Ortstext nur anzeigen, wenn "Ortstext nur" oder "Beides" ausgewählt ist
 if (displayOption === 'locationOnly') {
     // Schriftgröße dynamisch aus dem Menü holen
     const fontSize = parseInt(document.getElementById('font-size').value);
@@ -659,6 +697,82 @@ if (displayOption === 'locationOnly') {
     // Text auf den Hintergrund setzen (weiße Schrift)
     ctx.fillStyle = "#FFF";  // Weiße Schrift
     ctx.fillText(location, textX, textYPosition);	
+}
+*/
+if (displayOption === 'locationOnly') {
+    // Schriftgröße dynamisch aus dem Menü holen
+    const fontSize = parseInt(document.getElementById('font-size').value);
+    const padding = 10; // Abstand des Texts vom Hintergrund (obere Seite)
+    const bottomPadding = 25; // Extra Padding für den unteren Teil des Hintergrunds
+    ctx.font = `${fontSize}px sans-serif`; // Dynamische Schriftgröße setzen
+    const textWidth = ctx.measureText(location).width; // Breite des Textes
+    const textHeight = fontSize; // Höhe des Textes (entspricht der Schriftgröße)
+
+    // Hintergrund für den Text (abgerundet und leicht transparent)
+    const backgroundPadding = 50; // Extra Platz für Hintergrund
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";  // Transparenter schwarzer Hintergrund
+
+    // Horizontale und vertikale Abstände aus den Eingabefeldern holen
+    const horizontalOffset = parseInt(document.getElementById('horizontalOffset').value) || 50;
+    const verticalOffset = parseInt(document.getElementById('verticalOffset').value) || 25;
+
+    // Position aus dem Dropdown holen
+    const textPosition = document.getElementById('textPosition').value;
+
+    // Position für Text setzen
+    let textX, textY;
+    switch (textPosition) {
+        case 'bottom-left':
+            textX = horizontalOffset;
+            textY = canvas.height - verticalOffset;
+            break;
+        case 'bottom-center':
+            textX = (canvas.width - textWidth) / 2;
+            textY = canvas.height - verticalOffset;
+            break;
+        case 'bottom-right':
+            textX = canvas.width - textWidth - horizontalOffset;
+            textY = canvas.height - verticalOffset;
+            break;
+        case 'top-left':
+            textX = horizontalOffset;
+            textY = verticalOffset + textHeight;
+            break;
+        case 'top-center':
+            textX = (canvas.width - textWidth) / 2;
+            textY = verticalOffset + textHeight;
+            break;
+        case 'top-right':
+            textX = canvas.width - textWidth - horizontalOffset;
+            textY = verticalOffset + textHeight;
+            break;
+        default:
+            textX = horizontalOffset;
+            textY = canvas.height - verticalOffset;
+    }
+
+    // Hintergrundgröße berechnen
+    const backgroundWidth = textWidth + backgroundPadding * 2;
+    const backgroundHeight = textHeight + padding + bottomPadding;
+
+    // X- und Y-Koordinaten des Hintergrunds berechnen
+    const backgroundX = textX - backgroundPadding;
+    const backgroundY = textY - textHeight - padding;
+
+    // Hintergrund zeichnen (mit abgerundeten Ecken)
+    ctx.beginPath();
+    const cornerRadius = 20;
+    ctx.moveTo(backgroundX + cornerRadius, backgroundY);
+    ctx.arcTo(backgroundX, backgroundY, backgroundX, backgroundY + backgroundHeight, cornerRadius);
+    ctx.arcTo(backgroundX, backgroundY + backgroundHeight, backgroundX + backgroundWidth, backgroundY + backgroundHeight, cornerRadius);
+    ctx.arcTo(backgroundX + backgroundWidth, backgroundY + backgroundHeight, backgroundX + backgroundWidth, backgroundY, cornerRadius);
+    ctx.arcTo(backgroundX + backgroundWidth, backgroundY, backgroundX + cornerRadius, backgroundY, cornerRadius);
+    ctx.closePath();
+    ctx.fill();
+
+    // Text auf den Hintergrund setzen (weiße Schrift)
+    ctx.fillStyle = "#FFF";
+    ctx.fillText(location, textX, textY);
 }
 
 
